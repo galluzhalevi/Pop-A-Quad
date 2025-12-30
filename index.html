@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratic Functions Viewer</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- KaTeX CDN for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        .function-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .function-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            font-size: 1.4rem;
+            transition: background-color 0.2s;
+        }
+        .function-item:hover {
+            background-color: #f8f9fa;
+        }
+        .function-item:last-child {
+            border-bottom: none;
+        }
+        .loading, .error {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .error {
+            color: #d93025;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="card">
+    <h1>Quadratic Functions</h1>
+    
+    <div v-if="loading" class="loading">
+        Loading functions...
+    </div>
+    
+    <div v-else-if="error" class="error">
+        {{ error }}
+    </div>
+    
+    <ul v-else class="function-list">
+        <li v-for="(func, index) in functions" :key="index" class="function-item">
+            <span v-html="renderMath(func)"></span>
+        </li>
+    </ul>
+</div>
+
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const functions = ref([]);
+            const loading = ref(true);
+            const error = ref(null);
+
+            // Function to render LaTeX string using KaTeX
+            const renderMath = (formula) => {
+                try {
+                    return katex.renderToString(formula, {
+                        throwOnError: false,
+                        displayMode: false
+                    });
+                } catch (e) {
+                    return formula;
+                }
+            };
+
+            const loadData = async () => {
+                try {
+                    // Fetch the JSONL file from the same directory
+                    const response = await fetch('tmp.jsonl');
+                    if (!response.ok) throw new Error('Failed to load tmp.jsonl');
+                    
+                    const text = await response.text();
+                    
+                    // Parse JSONL: split by newline, filter empty lines, parse each line as JSON
+                    functions.value = text.trim().split('\n')
+                        .filter(line => line.trim())
+                        .map(line => {
+                            try {
+                                return JSON.parse(line);
+                            } catch (e) {
+                                // Fallback for non-strict JSON lines (strip quotes manually)
+                                return line.replace(/^"|"$/g, '');
+                            }
+                        });
+                } catch (err) {
+                    error.value = "Could not load data. Ensure the file is served via a web server.";
+                    console.error(err);
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            onMounted(loadData);
+
+            return {
+                functions,
+                loading,
+                error,
+                renderMath
+            };
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
