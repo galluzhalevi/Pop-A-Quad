@@ -9,7 +9,6 @@
     <!-- KaTeX CDN for math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <!-- Load the data from the external JS file -->
     <script src="data.js"></script>
     <style>
         body {
@@ -29,55 +28,60 @@
             width: 100%;
             max-width: 500px;
             padding: 30px;
+            text-align: center;
         }
         h1 {
-            text-align: center;
             color: #1a73e8;
             margin-bottom: 30px;
             font-weight: 300;
         }
-        .function-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .function-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+        .function-display {
+            font-size: 2.5rem;
+            margin: 40px 0;
+            min-height: 4rem;
             display: flex;
             justify-content: center;
-            font-size: 1.4rem;
+            align-items: center;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
             transition: background-color 0.2s;
         }
-        .function-item:hover {
-            background-color: #f8f9fa;
-        }
-        .function-item:last-child {
-            border-bottom: none;
+        button:hover {
+            background-color: #1557b0;
         }
     </style>
 </head>
 <body>
 
 <div id="app" class="card">
-    <h1>Quadratic Functions</h1>
+    <h1>Quadratic Function</h1>
     
-    <ul class="function-list">
-        <li v-for="(func, index) in functions" :key="index" class="function-item">
-            <span v-html="renderMath(func)"></span>
-        </li>
-    </ul>
+    <div class="function-display">
+        <span v-if="currentFunction" v-html="renderMath(currentFunction)"></span>
+    </div>
+
+    <div class="button-container">
+        <button @click="pickRandom">Random Function</button>
+    </div>
 </div>
 
 <script>
-    const { createApp, ref } = Vue;
+    const { createApp, ref, onMounted } = Vue;
 
     createApp({
         setup() {
-            // Use the data loaded from data.js
-            const functions = ref(window.quadraticData || []);
+            const currentFunction = ref('');
 
-            // Function to render LaTeX string using KaTeX
             const renderMath = (formula) => {
                 try {
                     return katex.renderToString(formula, {
@@ -89,9 +93,20 @@
                 }
             };
 
+            const pickRandom = () => {
+                const data = window.quadraticData || [];
+                if (data.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * data.length);
+                    currentFunction.value = data[randomIndex];
+                }
+            };
+
+            onMounted(pickRandom);
+
             return {
-                functions,
-                renderMath
+                currentFunction,
+                renderMath,
+                pickRandom
             };
         }
     }).mount('#app');
