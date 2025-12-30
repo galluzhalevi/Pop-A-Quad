@@ -11,7 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="data.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -107,10 +106,11 @@
     
     <div class="function-display">
         <span v-if="currentFunction" v-html="renderMath(currentFunction)"></span>
+        <span v-else-if="loading">Loading...</span>
     </div>
 
     <div class="button-container">
-        <button @click="copyToClipboard" class="copy-btn" title="Copy to clipboard">
+        <button @click="copyToClipboard" class="copy-btn" title="Copy to clipboard" :disabled="!currentFunction">
             <span class="icon-box">
                 <transition name="fade-scale" mode="out-in">
                     <i v-if="showStatus" class="fas fa-check fa-lg" key="check" style="color: #495057;"></i>
@@ -119,7 +119,7 @@
             </span>
             Copy
         </button>
-        <button @click="pickRandom" class="random-btn">Random Function</button>
+        <button @click="pickRandom" class="random-btn" :disabled="loading">Random Function</button>
     </div>
 </div>
 
@@ -129,7 +129,9 @@
     createApp({
         setup() {
             const currentFunction = ref('');
+            const quadraticData = ref([]);
             const showStatus = ref(false);
+            const loading = ref(true);
 
             const renderMath = (formula) => {
                 try {
@@ -142,11 +144,29 @@
                 }
             };
 
+            const fetchData = async () => {
+                try {
+                    const response = await fetch('quad_func_list.jsonl');
+                    if (!response.ok) throw new Error('Failed to fetch data');
+                    const text = await response.text();
+                    
+                    // Parse JSONL: split by lines, filter empty, parse each line
+                    quadraticData.value = text
+                        .split('\n')
+                        .filter(line => line.trim() !== '')
+                        .map(line => JSON.parse(line));
+                    
+                    loading.value = false;
+                } catch (err) {
+                    console.error('Error loading functions:', err);
+                    loading.value = false;
+                }
+            };
+
             const pickRandom = () => {
-                const data = window.quadraticData || [];
-                if (data.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * data.length);
-                    currentFunction.value = data[randomIndex];
+                if (quadraticData.value.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * quadraticData.value.length);
+                    currentFunction.value = quadraticData.value[randomIndex];
                     showStatus.value = false;
                 }
             };
@@ -165,11 +185,15 @@
                 }
             };
 
-            onMounted(pickRandom);
+            onMounted(async () => {
+                await fetchData();
+                pickRandom();
+            });
 
             return {
                 currentFunction,
                 showStatus,
+                loading,
                 renderMath,
                 pickRandom,
                 copyToClipboard
