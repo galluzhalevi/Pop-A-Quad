@@ -61,6 +61,24 @@
         .error {
             color: #d93025;
         }
+        .upload-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+        .upload-btn:hover {
+            background-color: #1557b0;
+        }
+        .error p {
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -73,7 +91,12 @@
     </div>
     
     <div v-else-if="error" class="error">
-        {{ error }}
+        <p>{{ error }}</p>
+        <p>To fix this, serve this folder via a web server (e.g. <code>python -m http.server</code>), or select the file manually:</p>
+        <label class="upload-btn">
+            Select tmp.jsonl
+            <input type="file" @change="handleFileUpload" accept=".jsonl" style="display: none;">
+        </label>
     </div>
     
     <ul v-else class="function-list">
@@ -104,6 +127,33 @@
                 }
             };
 
+            // Helper to parse JSONL content
+            const parseLines = (text) => {
+                return text.trim().split('\n')
+                    .filter(line => line.trim())
+                    .map(line => {
+                        try {
+                            return JSON.parse(line);
+                        } catch (e) {
+                            // Fallback for non-strict JSON lines (strip quotes manually)
+                            return line.replace(/^"|"$/g, '');
+                        }
+                    });
+            };
+
+            // Handle manual file selection to bypass CORS
+            const handleFileUpload = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    functions.value = parseLines(e.target.result);
+                    error.value = null;
+                };
+                reader.readAsText(file);
+            };
+
             const loadData = async () => {
                 try {
                     // Fetch the JSONL file from the same directory
@@ -111,20 +161,9 @@
                     if (!response.ok) throw new Error('Failed to load tmp.jsonl');
                     
                     const text = await response.text();
-                    
-                    // Parse JSONL: split by newline, filter empty lines, parse each line as JSON
-                    functions.value = text.trim().split('\n')
-                        .filter(line => line.trim())
-                        .map(line => {
-                            try {
-                                return JSON.parse(line);
-                            } catch (e) {
-                                // Fallback for non-strict JSON lines (strip quotes manually)
-                                return line.replace(/^"|"$/g, '');
-                            }
-                        });
+                    functions.value = parseLines(text);
                 } catch (err) {
-                    error.value = "Could not load data. Ensure the file is served via a web server.";
+                    error.value = "Browser security (CORS) prevented loading 'tmp.jsonl' automatically.";
                     console.error(err);
                 } finally {
                     loading.value = false;
@@ -137,7 +176,8 @@
                 functions,
                 loading,
                 error,
-                renderMath
+                renderMath,
+                handleFileUpload
             };
         }
     }).mount('#app');
