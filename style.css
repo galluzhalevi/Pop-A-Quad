@@ -95,12 +95,17 @@ button {
     background-color: #f8f9fa;
     color: #6c757d;
     border: 1px solid #dee2e6;
-    padding: 8px;
+    padding: 10px 5px;
     font-size: 0.9rem;
+    cursor: pointer;
+}
+.a-btn:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
 }
 .a-btn.active {
-    background-color: #e8f0fe;
-    color: #1a73e8;
+    background-color: #1a73e8;
+    color: white;
     border-color: #1a73e8;
     font-weight: bold;
 }

@@ -20,12 +20,14 @@
     <h1>Quadratic Function</h1>
 
     <div class="a-selection-grid">
-        <button class="a-btn" :class="{ active: selectedA === 'a=1' }">a=1</button>
-        <button class="a-btn" :class="{ active: selectedA === 'a>1' }">a&gt;1</button>
-        <button class="a-btn" :class="{ active: selectedA === '0<a<1' }">0&lt;a&lt;1</button>
-        <button class="a-btn" :class="{ active: selectedA === 'a=-1' }">a=-1</button>
-        <button class="a-btn" :class="{ active: selectedA === 'a<-1' }">a&lt;-1</button>
-        <button class="a-btn" :class="{ active: selectedA === '-1<a<0' }">-1&lt;a&lt;0</button>
+        <button 
+            v-for="opt in aOptions" 
+            :key="opt.file"
+            class="a-btn" 
+            :class="{ active: selectedA === opt.file }"
+            @click="selectA(opt)"
+            v-html="renderMath(opt.label)"
+        ></button>
     </div>
     
     <div class="function-display">
@@ -56,7 +58,16 @@
             const quadraticData = ref([]);
             const showStatus = ref(false);
             const loading = ref(true);
-            const selectedA = ref('a=1');
+            const selectedA = ref('a_eq_plus1.jsonl');
+
+            const aOptions = [
+                { label: 'a=1', file: 'a_eq_plus1.jsonl' },
+                { label: 'a>1', file: 'a_narrow_positive.jsonl' },
+                { label: '0<a<1', file: 'a_wide_positive.jsonl' },
+                { label: 'a=-1', file: 'a_eq_minus1.jsonl' },
+                { label: 'a<-1', file: 'a_narrow_negetive.jsonl' },
+                { label: '-1<a<0', file: 'a_wide_negative.jsonl' }
+            ];
 
             const renderMath = (formula) => {
                 try {
@@ -69,14 +80,13 @@
                 }
             };
 
-            const fetchData = async () => {
+            const fetchData = async (filename) => {
+                loading.value = true;
                 try {
-                    // Currently only loading a_eq_plus1.jsonl as requested
-                    const response = await fetch('a_eq_plus1.jsonl');
+                    const response = await fetch(filename);
                     if (!response.ok) throw new Error('Failed to fetch data');
                     const text = await response.text();
                     
-                    // Parse JSONL: split by lines, filter empty, parse each line
                     quadraticData.value = text
                         .split('\n')
                         .filter(line => line.trim() !== '')
@@ -86,7 +96,15 @@
                 } catch (err) {
                     console.error('Error loading functions:', err);
                     loading.value = false;
+                    quadraticData.value = [];
                 }
+            };
+
+            const selectA = async (option) => {
+                if (selectedA.value === option.file && quadraticData.value.length > 0) return;
+                selectedA.value = option.file;
+                await fetchData(option.file);
+                pickRandom();
             };
 
             const pickRandom = () => {
@@ -94,6 +112,8 @@
                     const randomIndex = Math.floor(Math.random() * quadraticData.value.length);
                     currentFunction.value = quadraticData.value[randomIndex];
                     showStatus.value = false;
+                } else {
+                    currentFunction.value = '';
                 }
             };
 
@@ -102,7 +122,6 @@
                 try {
                     await navigator.clipboard.writeText(currentFunction.value);
                     showStatus.value = true;
-                    // Reset icon after 2 seconds
                     setTimeout(() => {
                         showStatus.value = false;
                     }, 2000);
@@ -112,7 +131,7 @@
             };
 
             onMounted(async () => {
-                await fetchData();
+                await fetchData(selectedA.value);
                 pickRandom();
             });
 
@@ -121,9 +140,11 @@
                 showStatus,
                 loading,
                 selectedA,
+                aOptions,
                 renderMath,
                 pickRandom,
-                copyToClipboard
+                copyToClipboard,
+                selectA
             };
         }
     }).mount('#app');
