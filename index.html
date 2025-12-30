@@ -84,7 +84,7 @@
         }
         .icon-box {
             display: inline-flex;
-            width: 20px;
+            width: 24px;
             margin-right: 8px;
             justify-content: center;
         }
@@ -113,8 +113,8 @@
         <button @click="copyToClipboard" class="copy-btn" title="Copy to clipboard">
             <span class="icon-box">
                 <transition name="fade-scale" mode="out-in">
-                    <i v-if="showStatus" class="fas fa-check" key="check" style="color: #34a853;"></i>
-                    <i v-else class="fas fa-copy" key="copy"></i>
+                    <i v-if="showStatus" class="fas fa-check fa-lg" key="check" style="color: #495057;"></i>
+                    <i v-else class="fas fa-copy fa-lg" key="copy"></i>
                 </transition>
             </span>
             Copy
