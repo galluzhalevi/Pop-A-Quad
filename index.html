@@ -48,41 +48,55 @@
         .button-container {
             margin-top: 20px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             align-items: center;
         }
         button {
-            background-color: #1a73e8;
-            color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
             font-size: 1rem;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        button:hover {
+        .random-btn {
+            background-color: #1a73e8;
+            color: white;
+        }
+        .random-btn:hover {
             background-color: #1557b0;
         }
         .copy-btn {
-            background-color: #6c757d;
-            padding: 12px;
-            width: 45px;
-            height: 45px;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+            padding: 11px 20px;
+            font-weight: 500;
         }
         .copy-btn:hover {
-            background-color: #5a6268;
+            background-color: #e9ecef;
+            border-color: #ced4da;
+            color: #495057;
         }
-        .copy-status {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #34a853;
-            height: 1.2rem;
-            font-weight: 500;
+        .icon-box {
+            display: inline-flex;
+            width: 20px;
+            margin-right: 8px;
+            justify-content: center;
+        }
+        /* Animation for icon swap */
+        .fade-scale-enter-active,
+        .fade-scale-leave-active {
+            transition: all 0.2s ease;
+        }
+        .fade-scale-enter-from,
+        .fade-scale-leave-to {
+            opacity: 0;
+            transform: scale(0.5);
         }
     </style>
 </head>
@@ -97,13 +111,15 @@
 
     <div class="button-container">
         <button @click="copyToClipboard" class="copy-btn" title="Copy to clipboard">
-            <i class="fas fa-copy"></i>
+            <span class="icon-box">
+                <transition name="fade-scale" mode="out-in">
+                    <i v-if="showStatus" class="fas fa-check" key="check" style="color: #34a853;"></i>
+                    <i v-else class="fas fa-copy" key="copy"></i>
+                </transition>
+            </span>
+            Copy
         </button>
-        <button @click="pickRandom">Random Function</button>
-    </div>
-
-    <div class="copy-status">
-        <span v-if="showStatus">Copied to clipboard!</span>
+        <button @click="pickRandom" class="random-btn">Random Function</button>
     </div>
 </div>
 
@@ -140,7 +156,7 @@
                 try {
                     await navigator.clipboard.writeText(currentFunction.value);
                     showStatus.value = true;
-                    // Hide status after 2 seconds
+                    // Reset icon after 2 seconds
                     setTimeout(() => {
                         showStatus.value = false;
                     }, 2000);
