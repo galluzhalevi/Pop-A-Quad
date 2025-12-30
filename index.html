@@ -11,98 +11,22 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 500px;
-            padding: 30px;
-            text-align: center;
-        }
-        h1 {
-            color: #1a73e8;
-            margin-bottom: 30px;
-            font-weight: 300;
-        }
-        .function-display {
-            font-size: 2.5rem;
-            margin: 40px 0;
-            min-height: 4rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .button-container {
-            margin-top: 20px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            align-items: center;
-        }
-        button {
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .random-btn {
-            background-color: #1a73e8;
-            color: white;
-        }
-        .random-btn:hover {
-            background-color: #1557b0;
-        }
-        .copy-btn {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            border: 1px solid #dee2e6;
-            padding: 11px 20px;
-            font-weight: 500;
-        }
-        .copy-btn:hover {
-            background-color: #e9ecef;
-            border-color: #ced4da;
-            color: #495057;
-        }
-        .icon-box {
-            display: inline-flex;
-            width: 24px;
-            margin-right: 8px;
-            justify-content: center;
-        }
-        /* Animation for icon swap */
-        .fade-scale-enter-active,
-        .fade-scale-leave-active {
-            transition: all 0.2s ease;
-        }
-        .fade-scale-enter-from,
-        .fade-scale-leave-to {
-            opacity: 0;
-            transform: scale(0.5);
-        }
-    </style>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="app" class="card">
     <h1>Quadratic Function</h1>
+
+    <div class="a-selection-grid">
+        <button class="a-btn" :class="{ active: selectedA === 'a=1' }">a=1</button>
+        <button class="a-btn" :class="{ active: selectedA === 'a>1' }">a&gt;1</button>
+        <button class="a-btn" :class="{ active: selectedA === '0<a<1' }">0&lt;a&lt;1</button>
+        <button class="a-btn" :class="{ active: selectedA === 'a=-1' }">a=-1</button>
+        <button class="a-btn" :class="{ active: selectedA === 'a<-1' }">a&lt;-1</button>
+        <button class="a-btn" :class="{ active: selectedA === '-1<a<0' }">-1&lt;a&lt;0</button>
+    </div>
     
     <div class="function-display">
         <span v-if="currentFunction" v-html="renderMath(currentFunction)"></span>
@@ -132,6 +56,7 @@
             const quadraticData = ref([]);
             const showStatus = ref(false);
             const loading = ref(true);
+            const selectedA = ref('a=1');
 
             const renderMath = (formula) => {
                 try {
@@ -146,7 +71,8 @@
 
             const fetchData = async () => {
                 try {
-                    const response = await fetch('quad_func_list.jsonl');
+                    // Currently only loading a_eq_plus1.jsonl as requested
+                    const response = await fetch('a_eq_plus1.jsonl');
                     if (!response.ok) throw new Error('Failed to fetch data');
                     const text = await response.text();
                     
@@ -194,6 +120,7 @@
                 currentFunction,
                 showStatus,
                 loading,
+                selectedA,
                 renderMath,
                 pickRandom,
                 copyToClipboard

@@ -1,0 +1,106 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    text-align: center;
+}
+h1 {
+    color: #1a73e8;
+    margin-bottom: 30px;
+    font-weight: 300;
+}
+.function-display {
+    font-size: 2.5rem;
+    margin: 40px 0;
+    min-height: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.button-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+}
+button {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.random-btn {
+    background-color: #1a73e8;
+    color: white;
+}
+.random-btn:hover {
+    background-color: #1557b0;
+}
+.copy-btn {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    padding: 11px 20px;
+    font-weight: 500;
+}
+.copy-btn:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #495057;
+}
+.icon-box {
+    display: inline-flex;
+    width: 24px;
+    margin-right: 8px;
+    justify-content: center;
+}
+/* Animation for icon swap */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+    transition: all 0.2s ease;
+}
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+/* A selection buttons */
+.a-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.a-btn {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    font-size: 0.9rem;
+}
+.a-btn.active {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+    border-color: #1a73e8;
+    font-weight: bold;
+}
