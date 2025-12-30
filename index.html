@@ -53,32 +53,6 @@
         .function-item:last-child {
             border-bottom: none;
         }
-        .loading, .error {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-        }
-        .error {
-            color: #d93025;
-        }
-        .upload-btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #1a73e8;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-            text-decoration: none;
-        }
-        .upload-btn:hover {
-            background-color: #1557b0;
-        }
-        .error p {
-            margin: 10px 0;
-        }
     </style>
 </head>
 <body>
@@ -86,20 +60,7 @@
 <div id="app" class="card">
     <h1>Quadratic Functions</h1>
     
-    <div v-if="loading" class="loading">
-        Loading functions...
-    </div>
-    
-    <div v-else-if="error" class="error">
-        <p>{{ error }}</p>
-        <p>To fix this, serve this folder via a web server (e.g. <code>python -m http.server</code>), or select the file manually:</p>
-        <label class="upload-btn">
-            Select tmp.jsonl
-            <input type="file" @change="handleFileUpload" accept=".jsonl" style="display: none;">
-        </label>
-    </div>
-    
-    <ul v-else class="function-list">
+    <ul class="function-list">
         <li v-for="(func, index) in functions" :key="index" class="function-item">
             <span v-html="renderMath(func)"></span>
         </li>
@@ -107,13 +68,34 @@
 </div>
 
 <script>
-    const { createApp, ref, onMounted } = Vue;
+    const { createApp, ref } = Vue;
 
     createApp({
         setup() {
-            const functions = ref([]);
-            const loading = ref(true);
-            const error = ref(null);
+            // Hardcoded data from tmp.jsonl
+            const functions = ref([
+                "x^2-20x+100",
+                "x^2-19x+90",
+                "x^2-18x+80",
+                "x^2-17x+70",
+                "x^2-16x+60",
+                "x^2-15x+50",
+                "x^2-14x+40",
+                "x^2-13x+30",
+                "x^2-12x+20",
+                "x^2-11x+10",
+                "x^2+11x+28",
+                "x^2+12x+32",
+                "x^2+13x+36",
+                "x^2+14x+40",
+                "x^2+10x+25",
+                "x^2+11x+30",
+                "x^2+12x+35",
+                "x^2+13x+40",
+                "x^2+14x+45",
+                "x^2+15x+50",
+                "x^2+12x+36"
+            ]);
 
             // Function to render LaTeX string using KaTeX
             const renderMath = (formula) => {
@@ -127,57 +109,9 @@
                 }
             };
 
-            // Helper to parse JSONL content
-            const parseLines = (text) => {
-                return text.trim().split('\n')
-                    .filter(line => line.trim())
-                    .map(line => {
-                        try {
-                            return JSON.parse(line);
-                        } catch (e) {
-                            // Fallback for non-strict JSON lines (strip quotes manually)
-                            return line.replace(/^"|"$/g, '');
-                        }
-                    });
-            };
-
-            // Handle manual file selection to bypass CORS
-            const handleFileUpload = (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    functions.value = parseLines(e.target.result);
-                    error.value = null;
-                };
-                reader.readAsText(file);
-            };
-
-            const loadData = async () => {
-                try {
-                    // Fetch the JSONL file from the same directory
-                    const response = await fetch('tmp.jsonl');
-                    if (!response.ok) throw new Error('Failed to load tmp.jsonl');
-                    
-                    const text = await response.text();
-                    functions.value = parseLines(text);
-                } catch (err) {
-                    error.value = "Browser security (CORS) prevented loading 'tmp.jsonl' automatically.";
-                    console.error(err);
-                } finally {
-                    loading.value = false;
-                }
-            };
-
-            onMounted(loadData);
-
             return {
                 functions,
-                loading,
-                error,
-                renderMath,
-                handleFileUpload
+                renderMath
             };
         }
     }).mount('#app');
