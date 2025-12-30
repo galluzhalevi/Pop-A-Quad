@@ -9,6 +9,8 @@
     <!-- KaTeX CDN for math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="data.js"></script>
     <style>
         body {
@@ -48,6 +50,7 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            align-items: center;
         }
         button {
             background-color: #1a73e8;
@@ -58,15 +61,21 @@
             font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         button:hover {
             background-color: #1557b0;
         }
         .copy-btn {
-            background-color: #34a853;
+            background-color: #6c757d;
+            padding: 12px;
+            width: 45px;
+            height: 45px;
         }
         .copy-btn:hover {
-            background-color: #2d8e47;
+            background-color: #5a6268;
         }
         .copy-status {
             margin-top: 15px;
@@ -87,8 +96,10 @@
     </div>
 
     <div class="button-container">
+        <button @click="copyToClipboard" class="copy-btn" title="Copy to clipboard">
+            <i class="fas fa-copy"></i>
+        </button>
         <button @click="pickRandom">Random Function</button>
-        <button @click="copyToClipboard" class="copy-btn">Copy</button>
     </div>
 
     <div class="copy-status">
