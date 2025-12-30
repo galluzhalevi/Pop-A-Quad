@@ -45,6 +45,9 @@
         }
         .button-container {
             margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
         button {
             background-color: #1a73e8;
@@ -59,6 +62,19 @@
         button:hover {
             background-color: #1557b0;
         }
+        .copy-btn {
+            background-color: #34a853;
+        }
+        .copy-btn:hover {
+            background-color: #2d8e47;
+        }
+        .copy-status {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #34a853;
+            height: 1.2rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -72,6 +88,11 @@
 
     <div class="button-container">
         <button @click="pickRandom">Random Function</button>
+        <button @click="copyToClipboard" class="copy-btn">Copy</button>
+    </div>
+
+    <div class="copy-status">
+        <span v-if="showStatus">Copied to clipboard!</span>
     </div>
 </div>
 
@@ -81,6 +102,7 @@
     createApp({
         setup() {
             const currentFunction = ref('');
+            const showStatus = ref(false);
 
             const renderMath = (formula) => {
                 try {
@@ -98,6 +120,21 @@
                 if (data.length > 0) {
                     const randomIndex = Math.floor(Math.random() * data.length);
                     currentFunction.value = data[randomIndex];
+                    showStatus.value = false;
+                }
+            };
+
+            const copyToClipboard = async () => {
+                if (!currentFunction.value) return;
+                try {
+                    await navigator.clipboard.writeText(currentFunction.value);
+                    showStatus.value = true;
+                    // Hide status after 2 seconds
+                    setTimeout(() => {
+                        showStatus.value = false;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
                 }
             };
 
@@ -105,8 +142,10 @@
 
             return {
                 currentFunction,
+                showStatus,
                 renderMath,
-                pickRandom
+                pickRandom,
+                copyToClipboard
             };
         }
     }).mount('#app');
